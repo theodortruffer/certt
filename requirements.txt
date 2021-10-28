@@ -1,0 +1,11 @@
+Pillow~=8.4.0
+base45~=0.4.3
+cbor2~=5.4.2
+pyzbar~=0.1.8
+cose~=0.9.dev8
+setuptools~=57.0.0
+cryptography~=35.0.0
+PyJWT~=2.3.0
+requests~=2.26.0
+click~=8.0.3
+cwt~=1.4.2
