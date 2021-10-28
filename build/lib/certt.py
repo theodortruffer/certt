@@ -1,21 +1,20 @@
-import json
-import re
-import re
-import sys
-import zlib
-from datetime import datetime
-from io import TextIOWrapper
-
 import PIL.Image
 import base45
 import cbor2
 import click
+import cose.algorithms
+import json
 import pyzbar.pyzbar
+import re
+import re
+import sys
+import zlib
+from bcolors import bcolors
 from cose.messages import CoseMessage
 from cwt import load_pem_hcert_dsc, cwt
-
-from bcolors import bcolors
-from utilities import verify_signature, print_certificate
+from datetime import datetime
+from io import TextIOWrapper
+from utilities import verify_signature, print_certificate, ECDSA_ALGORITHMS
 
 
 @click.command()
@@ -40,12 +39,12 @@ def cli(qr_file: str, certificate: TextIOWrapper, rules: TextIOWrapper):
             print("verifying signature with given certificate..")
             public_key = load_pem_hcert_dsc(
                 f'-----BEGIN CERTIFICATE-----\n{certificate.read()}\n-----END CERTIFICATE-----')
-            certificate_payload = cwt.decode(decompressed, keys=[public_key], no_verify=True)
+            certificate_payload = cwt.decode(decompressed, keys=[public_key]) if cose_msg.phdr.get(
+                cose.headers.Algorithm) in ECDSA_ALGORITHMS else cbor2.loads(cose_msg.payload)
         else:
             print("verifying signature with trusted keys..")
             verify_signature(cose_msg)
             certificate_payload = cbor2.loads(cose_msg.payload)
-            # print("Certificate Data: {0}".format(json.dumps(cbor, indent=2, default=str, ensure_ascii=False)))
 
     print(bcolors.OKGREEN + "Verification of signature successfull" + bcolors.ENDC)
     print()
@@ -62,7 +61,6 @@ def cli(qr_file: str, certificate: TextIOWrapper, rules: TextIOWrapper):
             if k in cert:
                 for data in cert[k]:
                     print_certificate(json.load(rules), k, data)
-
 
 
 if __name__ == '__main__':

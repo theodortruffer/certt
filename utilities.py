@@ -1,22 +1,20 @@
 import base64
-import json
-import math
-from datetime import datetime, timedelta
-from io import TextIOWrapper
-from typing import Dict, Union, List
-
 import cose.algorithms
 import cryptography.x509 as x509
+import json
 import jwt
+import math
 import requests
+from bcolors import bcolors
 from cose.headers import KID
 from cose.keys import cosekey, keyparam, keyops, keytype
 from cose.messages.cosemessage import CM
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.x509 import Certificate
 from cwt.cose_key_interface import COSEKeyInterface
-
-from bcolors import bcolors
+from datetime import datetime, timedelta
+from io import TextIOWrapper
+from typing import Dict, Union, List
 
 KEY_FILE = "./data/trusted_keys.json"
 ROOT_CERT_URL = "https://www.bit.admin.ch/dam/bit/en/dokumente/pki/scanning_center/swiss_governmentrootcaii.crt.download.crt/swiss_governmentrootcaii.crt"
@@ -216,7 +214,6 @@ def __print_test(data: dict, rules: List[Dict]) -> None:
     check_against_rules(checked_date, data, rules)
 
 
-
 def check_against_rules(checked_date: datetime, data: dict, rules: List[dict]) -> None:
     for rule in rules:
         delta = timedelta(rule["days"])
@@ -228,15 +225,3 @@ def check_against_rules(checked_date: datetime, data: dict, rules: List[dict]) -
             print(f'{bcolors.FAIL}Certificate invalid{bcolors.ENDC}')
         elif check:
             print(f'{bcolors.OKGREEN}Certificate valid{bcolors.ENDC}')
-
-# def verify_signature(cose_msg: CM, public_key: COSEKeyInterface):
-#     algorithm = cose_msg.phdr.get(cose.headers.Algorithm)
-#     bkey = get_kid(cose_msg)
-#     public_numbers = {}
-#     for k, v in public_key._key.public_numbers().__dict__.items():
-#         public_numbers[k[1:]] = v   # remove underscore
-#     cose_key = build_cose_key(algorithm, bytes(bkey.hex(), "ASCII"), public_numbers)
-#     cose_msg.key = cose_key
-#     if not cose_msg.verify_signature():
-#         print(bcolors.FAIL + "signature could not be verified" + bcolors.ENDC)
-#         exit(1)
